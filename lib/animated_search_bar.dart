@@ -143,8 +143,8 @@ class _AnimatedSearchBarState extends State<AnimatedSearchBar> {
                   ),
           )),
           // Handle Animated Change view for Search Icon and Close Icon
-          IconButton(
-            icon:
+          TextButton(
+            child:
                 // Use animated Switcher to show animation in transition widget
                 AnimatedSwitcher(
               duration: Duration(milliseconds: 350),
