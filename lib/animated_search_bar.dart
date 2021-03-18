@@ -15,37 +15,38 @@ class AnimatedSearchBar extends StatefulWidget {
   ///  animationDuration in milliseconds -  int ,isRequired : No
   ///  searchStyle - TextStyle ,isRequired :  No
   ///  cursorColor - Color ,isRequired : No
-  const AnimatedSearchBar(
-      {Key? key,
-      this.label = "",
-      this.alignment = TextAlign.start,
-      this.onChanged,
-      this.labelStyle = const TextStyle(
-        fontSize: 14,
-        fontWeight: FontWeight.bold,
-      ),
-      this.searchDecoration = const InputDecoration(
-          labelText: "Search",
-          alignLabelWithHint: true,
-          contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-          border: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(8)),
-              gapPadding: 4)),
-      this.animationDuration = 350,
-      this.searchStyle = const TextStyle(color: Colors.black),
-      this.cursorColor,
-      this.duration = const Duration(milliseconds: 300)})
-      : super(key: key);
+  const AnimatedSearchBar({
+    Key? key,
+    this.label = "",
+    this.alignment = TextAlign.start,
+    this.onChanged,
+    this.labelStyle = const TextStyle(
+      fontSize: 14,
+      fontWeight: FontWeight.bold,
+    ),
+    this.searchDecoration = const InputDecoration(
+        labelText: "Search",
+        alignLabelWithHint: true,
+        contentPadding: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+        border: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8)), gapPadding: 4)),
+    this.animationDuration = 350,
+    this.cursorColor,
+    this.duration = const Duration(milliseconds: 300),
+    this.buttonPadding = 0.0,
+    this.tooltip = 'Search',
+  }) : super(key: key);
 
   final String label;
   final Function(String)? onChanged;
   final TextStyle labelStyle;
   final InputDecoration searchDecoration;
   final int animationDuration;
-  final TextStyle searchStyle;
   final Color? cursorColor;
   final TextAlign alignment;
   final Duration duration;
+  final double buttonPadding;
+  final String tooltip;
 
   @override
   _AnimatedSearchBarState createState() => _AnimatedSearchBarState();
@@ -103,92 +104,100 @@ class _AnimatedSearchBarState extends State<AnimatedSearchBar> {
             child: _isSearch
                 ?
                 //Container of SearchView
-                SizedBox(
-                    key: ValueKey("textF"),
-                    height: 60,
-                    child: Align(
-                        alignment: Alignment.centerLeft,
-                        child: TextFormField(
-                          focusNode: _fnSearch,
-                          keyboardType: TextInputType.text,
-                          textInputAction: TextInputAction.search,
-                          textAlign: widget.alignment,
-                          style: widget.searchStyle,
-                          minLines: 1,
-                          maxLines: 1,
-                          cursorColor:
-                              widget.cursorColor ?? ThemeData().primaryColor,
-                          textAlignVertical: TextAlignVertical.center,
-                          decoration: widget.searchDecoration,
-                          onChanged: (value) {
-                            _debouncer.run(() {
-                              widget.onChanged!(value);
-                            });
-                          },
-                        )),
+                // SizedBox(
+                //     key: ValueKey("textF"),
+                //     height: 60,
+                // child: Align(
+                //   alignment: Alignment.centerLeft,
+                TextFormField(
+                    focusNode: _fnSearch,
+                    keyboardType: TextInputType.text,
+                    textInputAction: TextInputAction.search,
+                    textAlign: widget.alignment,
+                    minLines: 1,
+                    maxLines: 1,
+                    cursorColor: widget.cursorColor ?? ThemeData().primaryColor,
+                    textAlignVertical: TextAlignVertical.center,
+                    decoration: widget.searchDecoration,
+                    onChanged: (value) {
+                      _debouncer.run(() {
+                        widget.onChanged!(value);
+                      });
+                    },
                   )
+                // ),
+                // )
                 :
                 //Container of Label
-                SizedBox(
-                    key: ValueKey("align"),
-                    height: 60,
-                    child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        widget.label,
-                        style: widget.labelStyle,
-                        textAlign: TextAlign.start,
-                      ),
-                    ),
+                // SizedBox(
+                //     key: ValueKey("align"),
+                //     height: 60,
+                //     child: Align(
+                //       alignment: Alignment.centerLeft,
+                Text(
+                    widget.label,
+                    style: widget.labelStyle,
+                    textAlign: TextAlign.start,
                   ),
+            //   ),
+            // ),
           )),
           // Handle Animated Change view for Search Icon and Close Icon
-          TextButton(
-            child:
-                // Use animated Switcher to show animation in transition widget
-                AnimatedSwitcher(
-              duration: Duration(milliseconds: 350),
-              transitionBuilder: (Widget child, Animation<double> animation) {
-                //animated from top to bottom
-                final inAnimation = Tween<Offset>(
-                        begin: Offset(0.0, 1.0), end: Offset(0.0, 0.0))
-                    .animate(animation);
-                //animated from bottom to top
-                final outAnimation = Tween<Offset>(
-                        begin: Offset(0.0, -1.0), end: Offset(0.0, 0.0))
-                    .animate(animation);
+          Tooltip(
+            message: widget.tooltip,
+            child: TextButton(
+              style: TextButton.styleFrom(
+                padding: EdgeInsets.all(widget.buttonPadding),
+              ),
+              child:
+                  // Use animated Switcher to show animation in transition widget
+                  AnimatedSwitcher(
+                duration: Duration(milliseconds: 350),
+                transitionBuilder: (Widget child, Animation<double> animation) {
+                  //animated from top to bottom
+                  final inAnimation = Tween<Offset>(
+                          begin: Offset(0.0, 1.0), end: Offset(0.0, 0.0))
+                      .animate(animation);
+                  //animated from bottom to top
+                  final outAnimation = Tween<Offset>(
+                          begin: Offset(0.0, -1.0), end: Offset(0.0, 0.0))
+                      .animate(animation);
 
-                // show different animation base on key
-                if (child.key == ValueKey("close")) {
-                  return ClipRect(
-                    child: SlideTransition(
-                      position: inAnimation,
-                      child: child,
-                    ),
-                  );
-                } else {
-                  return ClipRect(
-                    child:
-                        SlideTransition(position: outAnimation, child: child),
-                  );
-                }
+                  // show different animation base on key
+                  if (child.key == ValueKey("close")) {
+                    return ClipRect(
+                      child: SlideTransition(
+                        position: inAnimation,
+                        child: child,
+                      ),
+                    );
+                  } else {
+                    return ClipRect(
+                      child:
+                          SlideTransition(position: outAnimation, child: child),
+                    );
+                  }
+                },
+                child: _isSearch
+                    ?
+                    //if is search, set icon as Close
+                    Icon(
+                        Icons.close,
+                        key: ValueKey("close"),
+                      ) //if is !search, set icon as Search
+                    : Icon(
+                        Icons.search,
+                        key: ValueKey("search"),
+                      ),
+              ),
+              onPressed: () {
+                setState(() {
+                  _isSearch = !_isSearch;
+                  if (!_isSearch) widget.onChanged!("");
+                  if (_isSearch) _fnSearch.requestFocus();
+                });
               },
-              child: _isSearch
-                  ?
-                  //if is search, set icon as Close
-                  Icon(
-                      Icons.close,
-                      key: ValueKey("close"),
-                    ) //if is !search, set icon as Search
-                  : Icon(Icons.search, key: ValueKey("search")),
             ),
-            onPressed: () {
-              setState(() {
-                _isSearch = !_isSearch;
-                if (!_isSearch) widget.onChanged!("");
-                if (_isSearch) _fnSearch.requestFocus();
-              });
-            },
           ),
         ],
       ),
